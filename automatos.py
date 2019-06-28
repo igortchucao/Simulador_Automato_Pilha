@@ -1,12 +1,5 @@
 #-*- coding: utf-8 -*-
 
-class Transicao:
-	def __init__(self):
-		self.nome = None
-		self.objetivo = None
-		self.desempilha = None
-		self.empilha = None
-
 class Estado:
 	"""
 	A classe estado possui os seguintes atributos:

@@ -122,7 +122,10 @@ def setTransicaoAFN(lista_estados, alfabeto):
 			conjunto.clear()
 			while True:
 				index = input(estado.nome + '--' + simbolo + '-->')
-				conjunto.append(index)
+				empilha = input('Empilha algo?')
+				desempilha = input("Desempilha algo?")
+
+				conjunto.append(index, empilha, desempilha)
 				if input('Adicionar mais estados? (S/N) ').upper() == 'N':
 					break
 			estado.transicao[simbolo] = conjunto.copy()
@@ -245,7 +248,7 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 	for simb in palavra:
 		nome_prox = e_atual.transicao[simb][0]
 		print(e_atual.transicao[simb][0], e_atual.transicao[simb][1], e_atual.transicao[simb][2])
-		if(e_atual.transicao[simb][1] != '0' and len(pilha) > 0):
+		if(e_atual.transicao[simb][1] == pilha[-1] and len(pilha) > 0):
 			del(pilha[-1])
 		if(e_atual.transicao[simb][2] != '0'):
 			pilha.append(e_atual.transicao[simb][2])
@@ -257,13 +260,3 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 	# a palavra é aceita
 	print(pilha)
 	return 'é aceita' if e_atual.final is True else 'não é aceita'
-
-def pilha(pilha, desempilha, empilha):
-	"""Chamada da função para o uso da pilha.
-	Primeiro parametro é o que sera empilhado e o segundo desemplidado"""
-	pilha.append(empilha)
-	if(pilha[-1] == desempilha):
-		del(pilha[-1])
-	else:
-		return False, pilha
-	return True, pilha

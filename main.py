@@ -4,7 +4,7 @@ import automatos
 
 def main():
 	"""
-	Verifica  se o arquivo foi especificado no comando de execução do
+	Verifica se o arquivo foi especificado no comando de execução do
 	programa. Senão, a opção de criar um autômato será escolhida por
 	padrão.
 	Caso o arquivo não seja encontrado, uma mensagem de erro será mostrada.

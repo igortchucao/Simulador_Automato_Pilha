@@ -89,9 +89,10 @@ def criar_estados(qtd_estados):
 
 def setTransicaoAFD(lista_estados, alfabeto):
 	"""
-	Recebe o alfabeto e define, para cada estado, a transição do mesmo.
+	Recebe o alfabeto e define, para cada estado, a transição do mesmo,
+	o que será desempilhado e o que será empilhado.
 	Por se tratar de um AFD, cada símbolo processado só leva à um único
-	estado
+	estado, desempilhará e empilhará somente um simbolo
 	"""
 
 	for estado in lista_estados:
@@ -106,22 +107,31 @@ def setTransicaoAFN(lista_estados, alfabeto):
 	"""
 	Recebe o alfabeto e define, para cada estado, a transição do mesmo.
 	Por se tratar de um AFN, cada símbolo pode levar a mais de um estado.
-	A lista "conjunto" é responsável por armazenar os estados destinos e
+	A lista "estadosMudanca" é responsável por armazenar os estados destinos e
 	posteriormente adicionada ao dicionário de transição.
+	A lista "empilhadores" é responsavel por armazenar o que será empilhado
+	quando o estado atual ler o determinado alfabeto.
+	E a lista "desempilhadores" o que será retirado da pilha.
 	"""
-	conjunto = []
+	estadosMudanca = []
+	empilhadores = []
+	desempilhadores = []
+
 	for estado in lista_estados:
 		for simbolo in alfabeto:
-			conjunto.clear()
+			estadosMudanca.clear()
 			while True:
 				index = input(estado.nome + '--' + simbolo + '-->')
 				empilha = input('Empilha algo?')
 				desempilha = input("Desempilha algo?")
 
-				conjunto.append(index, empilha, desempilha)
+				estadosMudanca.append(index)
+				empilhadores.append(empilha)
+				desempilhadores.append(desempilha)
+
 				if input('Adicionar mais estados? (S/N) ').upper() == 'N':
 					break
-			estado.transicao[simbolo] = conjunto.copy()
+			estado.transicao[simbolo] = (estadosMudanca.copy(), empilhadores.copy(), desempilhadores.copy())
 
 def setInicial(estados):
 	"""

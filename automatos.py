@@ -250,16 +250,25 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 	# verificar qual estado é ativado e torná-lo o estado atual
 	for simb in palavra:
 		nome_prox = e_atual.transicao[simb][0]
-		print(e_atual.transicao[simb][0], e_atual.transicao[simb][1], e_atual.transicao[simb][2])
+
+		# Se o pedido que é feito para desempilhar não é aceito
+		# a palavra pode ser rejeitada pelo automato
 		if(e_atual.transicao[simb][1] == pilha[-1] and len(pilha) > 0):
 			del(pilha[-1])
+		else:
+			return 'não é aceita'
+
+		# Empilha 
 		if(e_atual.transicao[simb][2] != '0'):
 			pilha.append(e_atual.transicao[simb][2])
 
 		for e in lista_estados:
 			if e.nome == nome_prox:
 				e_atual = e
+
 	# Se o ultimo estado possuir o atributo '.final' = true, então
 	# a palavra é aceita
-	print(pilha)
+	if(len(pilha) == 0):
+		return 'é aceita'
+		
 	return 'é aceita' if e_atual.final is True else 'não é aceita'

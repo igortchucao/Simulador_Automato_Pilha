@@ -253,10 +253,12 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 
 		# Se o pedido que é feito para desempilhar não é aceito
 		# a palavra pode ser rejeitada pelo automato
-		if(e_atual.transicao[simb][1] == pilha[-1] and len(pilha) > 0):
-			del(pilha[-1])
-		else:
-			return 'não é aceita'
+		print(e_atual.transicao[simb], pilha)
+		if(len(pilha) > 0):
+			if(e_atual.transicao[simb][1] == pilha[-1]):
+				del(pilha[-1])
+			else:
+				return 'não é aceita'
 
 		# Empilha 
 		if(e_atual.transicao[simb][2] != '0'):

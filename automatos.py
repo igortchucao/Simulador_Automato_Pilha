@@ -40,7 +40,7 @@ def le_arquivo(arquivo):
 		tipo = f.readline().split()
 		qtd_estados = f.readline().split()
 		alfabeto = f.readline().split()
-		lista_estados = criar_estados(alfabeto[0], int(qtd_estados[0]))
+		lista_estados = criar_estados(int(qtd_estados[0]))
 
 		# definindo estado inicial
 		linha = f.readline().split()
@@ -55,22 +55,25 @@ def le_arquivo(arquivo):
 				e.final = True
 
 		# recebendo todas as transições
-		# transicao = f.readline().split()    #[0] = estado; [1] = simbolo; [2:] = destinos
+		# transicao = f.readline().split()
+		# q0 a * B q0
+		# [0] = estado; [1] = simbolo; [2] = desempilha; [3] = empilha; [4:] = destinos
 		for transicao in f:
-			lista = []
+			tupla = ()
 			t = transicao.split()
 			for e in lista_estados:
 				if e.nome == t[0]:
-					for destino in t[2:]:
-						lista.append(destino)
-					e.transicao[t[1]] = lista.copy()
-			lista.clear()
+					tupla = ((t[4:], t[2], t[3]))
+					# exemplo: (['q0'], '*', 'B') 
+					e.transicao.update({t[1]: tupla})
+				#print(e.transicao)
 	f.close()
-
+	
 	sair = True
 	while sair:
 		palavra = input('Palavra a ser processada: ')
-		print('A palavra', palavra, processa_palavra(lista_estados, palavra), 'pelo', tipo[0])
+		resultado = processa_palavraAFN(lista_estados, palavra)
+		print('A palavra', palavra, resultado, 'pelo', tipo[0])
 		i = input('Sair? (S/N) ')
 		sair = (False) if i.upper() == 'S' else (True)
 
@@ -145,7 +148,6 @@ def setInicial(estados):
 	while(Teste == False):
 		index = input('Qual estado inicial? ')
 		for e in estados:
-			print(e.nome, index, Teste)
 			if (e.nome == index):
 				e.inicial = True
 				Teste = True
@@ -233,7 +235,7 @@ def processa_palavra(pilha, lista_estados, palavra):
 			return 'é aceita'
 	return 'não é aceita'
 
-def processa_palavraAFD(pilha, lista_estados, palavra):
+def processa_palavraAFD(lista_estados, palavra):
 	"""
 	Procura o estado inicial na lista de estados e o torna estado atual.
 	E, para cada símbolo da palavra, verificar qual estado destino e torná-lo
@@ -241,6 +243,7 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 	Se no final da palavra ".final" for "True", então a palavra é aceita pelo
 	autômato.
 	"""
+	pilha = []
 	e_atual = None
 	# Busca o estado inicial
 	for e in lista_estados:
@@ -253,7 +256,7 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 
 		# Se o pedido que é feito para desempilhar não é aceito
 		# a palavra pode ser rejeitada pelo automato
-		if(e_atual.transicao[simb][1] != '0'):
+		if(e_atual.transicao[simb][1] != '*'):
 			#Se tiver algum simbolo na pilha
 			if(len(pilha) > 0):
 				#Se o valor para desempilhar for igual ao topo da pilha
@@ -265,7 +268,7 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 				return 'não é aceita'
 
 		# Empilha 
-		if(e_atual.transicao[simb][2] != '0'):
+		if(e_atual.transicao[simb][2] != '*'):
 			pilha.append(e_atual.transicao[simb][2])
 
 		for e in lista_estados:
@@ -277,5 +280,101 @@ def processa_palavraAFD(pilha, lista_estados, palavra):
 	if(len(pilha) == 0):
 		return 'é aceita' if e_atual.final is True else 'não é aceita'
 	return 'não é aceita'
-		
+
+def processa_palavraAFN(lista_de_estados, palavra):
+	pilha = []
+	e_atual = Estado('a')
+	# Busca o estado inicial
+	for e in lista_de_estados:
+		if e.inicial == True:
+			e_atual = e
+	# Lista de estados ativos no afn
+	e_ativos = []
+	e_ativos.append(e_atual)
+
+	# Fila dos próximos estados a serem ativados
+	fila_prox = []
+
+	# Verificando se o movimento vazio é aceito no estado inicial
+	if e_atual.transicao['*'] is not None:
+		nome_estado = e_atual.transicao['*'][0]
+		for prox_estado in nome_estado:
+			for e in lista_de_estados:
+				if e.nome == prox_estado:
+					e_ativos.append(e)
 	
+	# Percorrendo a palavra
+	for simb in palavra:
+		#
+		print('\nEstados ativos: ',end='')
+		for e in e_ativos:
+			print(e.nome,'', end='')
+		print()
+		#
+		for e_atual in e_ativos:
+			print(e_atual.nome,'Lendo:',simb)
+
+			# Acrescentado os estados a serem ativados
+			# Se estado atual possuir transições
+			if len(e_atual.transicao.keys()) > 0:
+				# Se possuir transição *
+				if e_atual.transicao['*'] is not None:
+					nome_estado = e_atual.transicao['*'][0]
+					print('Transição * =>', nome_estado)
+					for prox_estado in nome_estado:
+						for e in lista_de_estados:
+							if e.nome == prox_estado:
+								fila_prox.append(e)
+				
+				# Se possuir transição referente ao símbolo lido
+				keys_da_transicao = []
+				for i in e_atual.transicao.keys():
+					keys_da_transicao.append(i)
+				if keys_da_transicao.count(simb) != 0:
+					nome_estado = e_atual.transicao[simb][0]
+					print('Transição', simb,'=>', nome_estado)
+					for prox_estado in nome_estado:
+						for e in lista_de_estados:
+							if e.nome == prox_estado:
+								fila_prox.append(e)
+
+					# Desempilhar
+					if(e_atual.transicao[simb][1] != '*'):
+						# Se ao tentar desmpilhar houver falha, parar o processamento
+						# Se tiver algum simbolo na pilha
+						if(len(pilha) > 0):
+							#Se o valor para desempilhar for igual ao topo da pilha
+							if(e_atual.transicao[simb][1] == pilha[-1]):
+								pilha.pop()
+						else:
+							return 'não é aceita'
+
+					# Empilha o que não for *
+					if(e_atual.transicao[simb][2] != '*'):
+						pilha.append(e_atual.transicao[simb][2])
+
+				print('Pilha:', pilha)
+			# Copiando a tlista de próximos estados para estados ativos
+		e_ativos = fila_prox.copy()
+		fila_prox.clear()
+
+	# Adicionando os estados ativáveis por movimento vazio a partir dos estados finais
+	e_finais = []
+	for e in e_ativos:
+		if len(e.transicao) > 0:
+			if e.transicao['*'] is not None:
+				estados_ativados = e.transicao['*'][0]
+				for prox_estado in estados_ativados:
+					for est in lista_de_estados:
+						if est.nome == prox_estado:
+							e_finais.append(est)
+		else:
+			e_finais = e_ativos.copy()
+			e_ativos.clear()
+	# Se o ultimo estado possuir o atributo '.final' = true, então
+	# a palavra é aceita
+	if(len(pilha) == 0):
+		for estado in e_finais:
+			if estado.final == True:
+				return 'é aceita'
+	return 'não é aceita'

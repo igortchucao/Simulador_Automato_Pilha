@@ -1,0 +1,10 @@
+afn
+3
+ab
+q0
+q2
+q0 a * B q0
+q0 b B * q1
+q0 * * * q2
+q1 b B * q1
+q1 * * * q2

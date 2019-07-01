@@ -14,7 +14,6 @@ def main():
 	Então será definido se o autômato é um AFD ou AFN. E, para cada um, seus
 	respectivos métodos.
 	"""
-	pilha = []
 	try:
 		arquivo = sys.argv[1]
 		automatos.le_arquivo(arquivo)
@@ -32,7 +31,7 @@ def main():
 			automatos.setFinal(lista_estados)
 			while i == True:
 				palavra = automatos.getPalavra(alfabeto)
-				print('A palavra', palavra, automatos.processa_palavraAFD(pilha, lista_estados, palavra), 'pelo autômato')
+				print('A palavra', palavra, automatos.processa_palavraAFD(lista_estados, palavra), 'pelo autômato')
 				sair = input('Sair? (S/N) ')
 				i = False if sair.upper() == 'S' else True
 		elif menu.upper() == 'AFN':
@@ -40,7 +39,7 @@ def main():
 			automatos.setFinal(lista_estados)
 			while i == True:
 				palavra = automatos.getPalavra(alfabeto)
-				print('A palavra', palavra, automatos.processa_palavra(pilha, lista_estados, palavra), 'pelo autômato')
+				print('A palavra', palavra, automatos.processa_palavra(lista_estados, palavra), 'pelo autômato')
 				sair = input('Sair? (S/N) ')
 				i = False if sair.upper() == 'S' else True
 		else:
